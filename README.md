@@ -17,3 +17,6 @@ raspi_temp
 ==========
 C语言获取CPU温度
 
+django
+=======
+启动django 

@@ -1,0 +1,96 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:        django
+# Required-Start:  $network $remote_fs $syslog
+# Required-Stop:   $network $remote_fs $syslog
+# Default-Start:   2 3 4 5
+# Default-Stop: 
+# Short-Description: Start Django  daemon
+### END INIT INFO
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+
+. /lib/lsb/init-functions
+Djangofile=/var/www/mysite/manage.py
+DAEMON="/usr/bin/python /var/www/mysite/manage.py"
+#DAEMON=/var/www/mysite/manage.py
+PIDFILE=/var/run/manage.py.pid
+
+test -e $Djangofile || exit 5
+
+#if [ -r /etc/default/ntp ]; then
+#	. /etc/default/ntp
+#fi
+
+#if [ -e /var/lib/ntp/ntp.conf.dhcp ]; then
+#	NTPD_OPTS="$NTPD_OPTS -c /var/lib/ntp/ntp.conf.dhcp"
+#fi
+Django_OPTS="runserver 0.0.0.0:80"
+
+
+#LOCKFILE=/var/lock/ntpdate
+
+#lock_ntpdate() {
+#	if [ -x /usr/bin/lockfile-create ]; then
+#		lockfile-create $LOCKFILE
+#		lockfile-touch $LOCKFILE &
+#		LOCKTOUCHPID="$!"
+#	fi
+#}
+
+#unlock_ntpdate() {
+#	if [ -x /usr/bin/lockfile-create ] ; then
+#		kill $LOCKTOUCHPID
+#		lockfile-remove $LOCKFILE
+#	fi
+#}
+
+#RUNASUSER=ntp
+#UGID=$(getent passwd $RUNASUSER | cut -f 3,4 -d:) || true
+#if test "$(uname -s)" = "Linux"; then
+#        NTPD_OPTS="$NTPD_OPTS -u $UGID"
+#fi
+
+case $1 in
+	start)
+		log_daemon_msg "Starting Django website server" "mysite"
+		#if [ -z "$UGID" ]; then
+		#	log_failure_msg "user \"$RUNASUSER\" does not exist"
+		#	exit 1
+		#fi
+		#lock_ntpdate
+  		start-stop-daemon --start --quiet --oknodo --pidfile $PIDFILE --startas $DAEMON  $Django_OPTS 1>/dev/null 2>&1 &
+		status=$?
+		#unlock_ntpdate
+		log_end_msg $status
+        ps ax | grep -i 'manage.py runserver' | head -n 1| awk -F ' ' '{print "\t"$7" as: "$8}'
+  		;;
+	stop)
+		log_daemon_msg "Stopping Django website server" "mysite"
+  		start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE
+		log_end_msg $?
+		rm -f $PIDFILE
+  		;;
+	restart|force-reload)
+		$0 stop && sleep 2 && $0 start
+  		;;
+	try-restart)
+		if $0 status >/dev/null; then
+			$0 restart
+		else
+			exit 0
+		fi
+		;;
+	reload)
+		exit 3
+		;;
+	status)
+		status_of_proc $DAEMON "Django website server"
+        ps ax | grep -i 'manage.py runserver' | head -n 1| awk -F ' ' '{print "\t"$7" as: "$8}'
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart|try-restart|force-reload|status}"
+		exit 2
+		;;
+esac
