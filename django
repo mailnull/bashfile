@@ -15,8 +15,10 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin
 Djangofile=/var/www/mysite/manage.py
 DAEMON="/usr/bin/python /var/www/mysite/manage.py"
 #DAEMON=/var/www/mysite/manage.py
-PIDFILE=/var/run/manage.py.pid
+PIDFILE=/var/run/django.pid
 
+set -e
+umask 022
 test -e $Djangofile || exit 5
 
 #if [ -r /etc/default/ntp ]; then
@@ -60,7 +62,7 @@ case $1 in
 		#	exit 1
 		#fi
 		#lock_ntpdate
-  		start-stop-daemon --start --quiet --oknodo --pidfile $PIDFILE --startas $DAEMON  $Django_OPTS 1>/dev/null 2>&1 &
+  		start-stop-daemon --start --quiet --oknodo --pidfile $PIDFILE --exec $DAEMON  $Django_OPTS 1>/dev/null 2>&1 &
 		status=$?
 		#unlock_ntpdate
 		log_end_msg $status
