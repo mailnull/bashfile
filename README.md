@@ -20,3 +20,11 @@ C语言获取CPU温度
 django
 =======
 启动django 
+
+decoderawsfan.c
+===============
+整理红个编码
+
+sedtr.sh
+========
+替换回车换行
