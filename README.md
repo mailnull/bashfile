@@ -28,3 +28,7 @@ decoderawsfan.c
 sedtr.sh
 ========
 替换回车换行
+
+dearr.c
+=========
+美的R15D遥控器电平时间操作码转16进制
